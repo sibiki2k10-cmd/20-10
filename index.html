@@ -3,237 +3,381 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Link Master Pro</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <title>Link Space 🚀</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #4e54c8; --secondary: #8f94fb;
-            --bg: #f4f7fc; --sidebar: #ffffff; --text: #333;
-            --danger: #ff6b6b; --success: #2ecc71;
+            --glass-bg: rgba(255, 255, 255, 0.15);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+            --text-color: #ffffff;
+            --card-hover: rgba(255, 255, 255, 0.25);
+            --accent: #ff0080;
         }
-        * { box-sizing: border-box; }
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; display: flex; }
+
+        * { box-sizing: border-box; font-family: 'Outfit', sans-serif; }
+
+        body {
+            margin: 0; padding: 0;
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: var(--text-color);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* --- GLASSMOPHISM CLASSES --- */
+        .glass {
+            background: var(--glass-bg);
+            box-shadow: var(--glass-shadow);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+        }
+
+        /* --- LAYOUT --- */
+        .sidebar {
+            width: 260px;
+            height: 96vh;
+            margin: 2vh 0 2vh 2vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            transition: 0.3s;
+            z-index: 100;
+        }
+
+        .main {
+            flex: 1;
+            height: 100vh;
+            overflow-y: auto;
+            padding: 30px;
+            position: relative;
+        }
+
+        /* --- SIDEBAR COMPONENTS --- */
+        .brand {
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin-bottom: 40px;
+            display: flex; align-items: center; gap: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .menu-item {
+            padding: 14px 20px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            border-radius: 12px;
+            transition: 0.3s;
+            display: flex; align-items: center; gap: 15px;
+            color: rgba(255,255,255,0.7);
+            font-weight: 600;
+        }
+        .menu-item:hover, .menu-item.active {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            transform: translateX(5px);
+        }
         
-        /* LAYOUT */
-        .sidebar { width: 250px; background: var(--sidebar); display: flex; flex-direction: column; padding: 20px; border-right: 1px solid #ddd; transition: 0.3s; }
-        .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; }
+        .user-panel {
+            margin-top: auto;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            display: flex; align-items: center; justify-content: space-between;
+        }
+
+        /* --- TOP BAR & SEARCH --- */
+        .top-bar {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 30px;
+        }
         
-        /* LOGIN OVERLAY */
-        #login-overlay {
+        .search-box {
+            position: relative;
+            width: 300px;
+        }
+        .search-box input {
+            width: 100%;
+            padding: 12px 20px 12px 45px;
+            border-radius: 30px;
+            border: none;
+            outline: none;
+            background: rgba(255,255,255,0.15);
+            color: white;
+            backdrop-filter: blur(5px);
+            transition: 0.3s;
+        }
+        .search-box input::placeholder { color: rgba(255,255,255,0.6); }
+        .search-box input:focus { background: rgba(255,255,255,0.25); box-shadow: 0 0 15px rgba(255,255,255,0.1); }
+        .search-icon {
+            position: absolute; left: 15px; top: 50%; transform: translateY(-50%);
+            color: rgba(255,255,255,0.6);
+        }
+
+        .btn-add {
+            background: white; color: #e73c7e;
+            border: none; padding: 12px 25px;
+            border-radius: 30px;
+            font-weight: bold; cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: 0.3s;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .btn-add:hover { transform: translateY(-3px) scale(1.05); box-shadow: 0 8px 25px rgba(0,0,0,0.3); }
+
+        /* --- GRID CARDS --- */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            padding-bottom: 80px;
+        }
+
+        .card {
+            padding: 20px;
+            position: relative;
+            transition: 0.3s;
+            display: flex; flex-direction: column;
+            overflow: hidden;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            background: var(--card-hover);
+        }
+        
+        .card-header { display: flex; gap: 15px; margin-bottom: 12px; }
+        .card-icon { width: 48px; height: 48px; border-radius: 12px; object-fit: cover; background: white; padding: 2px; }
+        .card-title { font-weight: 700; font-size: 1.1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 160px; }
+        .card-tag { font-size: 0.75rem; background: rgba(255,255,255,0.2); padding: 2px 10px; border-radius: 20px; display: inline-block; margin-top: 4px; }
+        
+        .card-desc {
+            font-size: 0.85rem; color: rgba(255,255,255,0.7);
+            margin-bottom: 15px;
+            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+            height: 2.6em; line-height: 1.3em;
+        }
+
+        .card-actions {
+            margin-top: auto;
+            display: flex; justify-content: space-between;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 12px;
+        }
+        .action-btn {
+            background: none; border: none; color: rgba(255,255,255,0.6);
+            cursor: pointer; font-size: 1rem; transition: 0.2s;
+            width: 30px; height: 30px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .action-btn:hover { background: rgba(255,255,255,0.2); color: white; }
+        .action-btn.del:hover { background: #ff4757; color: white; }
+
+        /* --- LOGIN & MODAL --- */
+        .overlay-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(15px);
             z-index: 999; display: flex; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none; transition: 0.3s;
         }
-        .login-box { background: white; padding: 40px; border-radius: 15px; width: 350px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
-        .inp-login { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; outline: none; }
+        .overlay-screen.active { opacity: 1; pointer-events: all; }
+
+        .modal-box {
+            background: white; color: #333;
+            width: 450px; padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            transform: scale(0.9); transition: 0.3s;
+        }
+        .overlay-screen.active .modal-box { transform: scale(1); }
+
+        .inp-group { margin-bottom: 15px; }
+        .inp-control {
+            width: 100%; padding: 12px; border: 1px solid #ddd;
+            border-radius: 8px; font-size: 1rem; outline: none; transition: 0.2s;
+        }
+        .inp-control:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(255, 0, 128, 0.1); }
         
-        /* SIDEBAR ELEMENTS */
-        .brand { font-size: 1.5rem; font-weight: bold; color: var(--primary); margin-bottom: 30px; display: flex; align-items: center; gap: 10px; }
-        .menu-item { padding: 12px 15px; margin-bottom: 5px; cursor: pointer; border-radius: 8px; color: #666; transition: 0.2s; display: flex; align-items: center; gap: 10px; }
-        .menu-item:hover, .menu-item.active { background: #eef2ff; color: var(--primary); font-weight: bold; }
-        .user-info { margin-top: auto; padding-top: 20px; border-top: 1px solid #eee; display: flex; align-items: center; justify-content: space-between; font-size: 0.9rem; }
+        .btn-primary {
+            width: 100%; padding: 12px; border: none; border-radius: 8px;
+            background: linear-gradient(45deg, #e73c7e, #ee7752);
+            color: white; font-weight: bold; cursor: pointer; font-size: 1rem;
+            transition: 0.3s;
+        }
+        .btn-primary:hover { opacity: 0.9; transform: translateY(-2px); }
 
-        /* TOP BAR */
-        .top-bar { padding: 20px; background: white; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
-        .search-box { position: relative; width: 300px; }
-        .search-box input { width: 100%; padding: 10px 15px 10px 40px; border-radius: 20px; border: 1px solid #ddd; outline: none; background: #f9f9f9; }
-        .search-box i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #999; }
-        
-        /* GRID & CARDS */
-        .grid-container { padding: 20px; overflow-y: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
-        .card { background: white; border-radius: 12px; padding: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); transition: 0.2s; position: relative; border: 1px solid transparent; }
-        .card:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); border-color: var(--secondary); }
-        .card-header { display: flex; gap: 10px; margin-bottom: 10px; }
-        .card-icon { width: 40px; height: 40px; border-radius: 8px; object-fit: cover; }
-        .card-title { font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px; }
-        .card-cat { font-size: 0.75rem; background: #eee; padding: 2px 8px; border-radius: 4px; color: #666; }
-        .card-desc { font-size: 0.85rem; color: #777; margin-bottom: 15px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 2.6em; }
-        .card-actions { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #f0f0f0; padding-top: 10px; }
-        .btn-icon { background: none; border: none; cursor: pointer; color: #999; transition: 0.2s; }
-        .btn-icon:hover { color: var(--primary); }
-        .btn-icon.del:hover { color: var(--danger); }
+        /* --- TOAST --- */
+        #toast {
+            position: fixed; bottom: 30px; right: 30px;
+            background: rgba(0,0,0,0.8); color: white;
+            padding: 12px 25px; border-radius: 50px;
+            display: flex; align-items: center; gap: 10px;
+            transform: translateY(100px); transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 1000;
+        }
+        #toast.show { transform: translateY(0); }
 
-        /* BUTTONS */
-        .btn { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; color: white; transition: 0.2s; }
-        .btn-primary { background: linear-gradient(to right, var(--primary), var(--secondary)); box-shadow: 0 4px 10px rgba(78, 84, 200, 0.3); }
-        .btn-primary:hover { opacity: 0.9; }
-        .fab-add { position: absolute; bottom: 30px; right: 30px; width: 60px; height: 60px; border-radius: 50%; background: var(--primary); color: white; font-size: 24px; border: none; cursor: pointer; box-shadow: 0 5px 15px rgba(78, 84, 200, 0.4); display: flex; align-items: center; justify-content: center; transition: 0.3s; }
-        .fab-add:hover { transform: scale(1.1) rotate(90deg); }
-
-        /* MODAL */
-        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; display: none; align-items: center; justify-content: center; }
-        .modal-content { background: white; width: 500px; padding: 25px; border-radius: 12px; animation: slideIn 0.3s; }
-        @keyframes slideIn { from {transform: translateY(-20px); opacity: 0;} to {transform: translateY(0); opacity: 1;} }
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 5px; font-weight: 500; font-size: 0.9rem; }
-        .form-control { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; outline: none; }
-        .modal-actions { text-align: right; margin-top: 20px; }
-        .hidden { display: none !important; }
-
-        /* TOAST */
-        #toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 10px 20px; border-radius: 30px; opacity: 0; transition: 0.3s; pointer-events: none; }
-        .toast-show { opacity: 1 !important; bottom: 50px !important; }
-
-        /* RESPONSIVE */
+        /* MOBILE */
+        .menu-toggle { display: none; color: white; font-size: 1.5rem; cursor: pointer; margin-right: 15px; }
         @media (max-width: 768px) {
-            .sidebar { position: fixed; left: -250px; height: 100%; z-index: 900; }
-            .sidebar.open { left: 0; box-shadow: 5px 0 15px rgba(0,0,0,0.1); }
-            .menu-toggle { display: block; font-size: 1.5rem; cursor: pointer; margin-right: 15px; }
+            .sidebar { position: fixed; left: -280px; height: 100vh; margin: 0; border-radius: 0; }
+            .sidebar.open { left: 0; box-shadow: 10px 0 30px rgba(0,0,0,0.3); }
+            .menu-toggle { display: block; }
+            .main { padding: 15px; }
+            .grid { grid-template-columns: 1fr; }
         }
-        @media (min-width: 769px) { .menu-toggle { display: none; } }
     </style>
 </head>
 <body>
 
-    <div id="login-overlay">
-        <div class="login-box">
-            <h2 style="color:var(--primary); margin:0 0 20px 0;"><i class="fas fa-link"></i> Link Master</h2>
-            <input type="text" id="u" class="inp-login" placeholder="Tên đăng nhập">
-            <input type="password" id="p" class="inp-login" placeholder="Mật khẩu">
-            <button class="btn btn-primary" onclick="app.login()" style="width:100%; margin-top:10px">Đăng nhập</button>
-            <p id="login-msg" style="color:red; font-size:0.8rem; margin-top:10px"></p>
+    <div id="login-overlay" class="overlay-screen active" style="z-index: 2000;">
+        <div class="modal-box glass" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); color: white; text-align: center;">
+            <h1 style="margin-bottom: 5px;">Link Space 🪐</h1>
+            <p style="margin-bottom: 25px; opacity: 0.8;">Kho lưu trữ vũ trụ của bạn</p>
+            <input type="text" id="u" class="inp-control" placeholder="Tên đăng nhập" style="background:rgba(255,255,255,0.2); border:none; color:white; margin-bottom:10px;">
+            <input type="password" id="p" class="inp-control" placeholder="Mật khẩu" style="background:rgba(255,255,255,0.2); border:none; color:white; margin-bottom:20px;">
+            <button class="btn-primary" onclick="app.login()">Khởi động tàu vũ trụ 🚀</button>
+            <p id="login-msg" style="color:#ff6b81; margin-top:10px; font-size:0.9rem"></p>
         </div>
     </div>
 
-    <div class="sidebar" id="sidebar">
-        <div class="brand"><i class="fas fa-link"></i> Link Master</div>
+    <div class="sidebar glass" id="sidebar">
+        <div class="brand"><i class="fas fa-meteor"></i> Link Space</div>
+        
         <div id="menu-list">
-            <div class="menu-item active" onclick="app.filter('all', this)"><i class="fas fa-th-large"></i> Tất cả</div>
+            <div class="menu-item active" onclick="app.filter('all', this)"><i class="fas fa-globe"></i> Tất cả</div>
             <div class="menu-item" onclick="app.filter('Công việc', this)"><i class="fas fa-briefcase"></i> Công việc</div>
-            <div class="menu-item" onclick="app.filter('Học tập', this)"><i class="fas fa-graduation-cap"></i> Học tập</div>
-            <div class="menu-item" onclick="app.filter('Giải trí', this)"><i class="fas fa-film"></i> Giải trí</div>
-            <div class="menu-item" onclick="app.filter('Tài liệu', this)"><i class="fas fa-folder-open"></i> Tài liệu</div>
+            <div class="menu-item" onclick="app.filter('Học tập', this)"><i class="fas fa-book"></i> Học tập</div>
+            <div class="menu-item" onclick="app.filter('Giải trí', this)"><i class="fas fa-gamepad"></i> Giải trí</div>
+            <div class="menu-item" onclick="app.filter('Tài liệu', this)"><i class="fas fa-folder"></i> Tài liệu</div>
             <div class="menu-item" onclick="app.filter('Khác', this)"><i class="fas fa-star"></i> Khác</div>
         </div>
-        <div class="user-info">
-            <span id="user-display">Guest</span>
-            <button onclick="location.reload()" style="background:none; border:none; color:var(--danger); cursor:pointer"><i class="fas fa-sign-out-alt"></i></button>
+
+        <div class="user-panel">
+            <div style="display:flex; align-items:center; gap:10px">
+                <div style="width:35px; height:35px; background:rgba(255,255,255,0.3); border-radius:50%; display:flex; align-items:center; justify-content:center"><i class="fas fa-user-astronaut"></i></div>
+                <span id="user-display" style="font-weight:bold">Guest</span>
+            </div>
+            <button onclick="location.reload()" style="background:none; border:none; color:#ff6b81; cursor:pointer"><i class="fas fa-power-off"></i></button>
         </div>
     </div>
 
-    <div class="main-content">
+    <div class="main">
         <div class="top-bar">
             <div style="display:flex; align-items:center;">
                 <i class="fas fa-bars menu-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')"></i>
                 <div class="search-box">
-                    <i class="fas fa-search"></i>
+                    <i class="fas fa-search search-icon"></i>
                     <input type="text" id="search-inp" placeholder="Tìm kiếm link..." onkeyup="app.search()">
                 </div>
             </div>
-            <button class="btn btn-primary" onclick="app.openModal()"><i class="fas fa-plus"></i> Thêm mới</button>
+            <button class="btn-add" onclick="app.openModal()"><i class="fas fa-plus"></i> Thêm mới</button>
         </div>
 
-        <div class="grid-container" id="grid">
-            <p style="text-align:center; color:#999; width:100%">Đang tải dữ liệu...</p>
-        </div>
-
-        <button class="fab-add" onclick="app.openModal()"><i class="fas fa-plus"></i></button>
+        <div class="grid" id="grid">
+            </div>
     </div>
 
-    <div class="modal" id="modal">
-        <div class="modal-content">
-            <h3 id="modal-title">Thêm Link Mới</h3>
+    <div id="modal-overlay" class="overlay-screen">
+        <div class="modal-box">
+            <h2 id="modal-title" style="margin-top:0; color: #333;">Thêm Link Mới</h2>
             
-            <div class="form-group" style="display:flex; gap:5px">
-                <input type="text" id="inp-url" class="form-control" placeholder="Dán URL vào đây (https://...)" onchange="app.fetchMeta()">
-                <button onclick="app.fetchMeta()" class="btn" style="background:#eee; color:#333">⚡</button>
+            <div class="inp-group" style="display:flex; gap:10px">
+                <input type="text" id="inp-url" class="inp-control" placeholder="Dán URL (https://...)" onchange="app.fetchMeta()">
+                <button onclick="app.fetchMeta()" class="btn-primary" style="width:50px; display:flex; align-items:center; justify-content:center">⚡</button>
             </div>
-            
-            <div class="form-group">
-                <input type="text" id="inp-title" class="form-control" placeholder="Tiêu đề website">
-            </div>
-
-            <div class="form-group">
-                <select id="inp-cate" class="form-control">
-                    <option value="Công việc">Công việc</option>
-                    <option value="Học tập">Học tập</option>
-                    <option value="Giải trí">Giải trí</option>
-                    <option value="Tài liệu">Tài liệu</option>
-                    <option value="Khác">Khác</option>
+            <div class="inp-group"><input type="text" id="inp-title" class="inp-control" placeholder="Tiêu đề"></div>
+            <div class="inp-group">
+                <select id="inp-cate" class="inp-control">
+                    <option value="Công việc">💼 Công việc</option>
+                    <option value="Học tập">📚 Học tập</option>
+                    <option value="Giải trí">🎬 Giải trí</option>
+                    <option value="Tài liệu">📂 Tài liệu</option>
+                    <option value="Khác">✨ Khác</option>
                 </select>
             </div>
-
-            <div class="form-group">
-                <textarea id="inp-desc" class="form-control" rows="3" placeholder="Mô tả ngắn..."></textarea>
-            </div>
+            <div class="inp-group"><textarea id="inp-desc" class="inp-control" rows="3" placeholder="Mô tả..."></textarea></div>
 
             <input type="hidden" id="inp-icon">
-            <input type="hidden" id="inp-row"> <div class="modal-actions">
-                <button onclick="document.getElementById('modal').style.display='none'" class="btn" style="background:#eee; color:#333">Hủy</button>
-                <button onclick="app.saveLink()" id="btn-save" class="btn btn-primary">Lưu lại</button>
+            <input type="hidden" id="inp-row">
+
+            <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
+                <button onclick="document.getElementById('modal-overlay').classList.remove('active')" style="background:#eee; color:#333; padding:10px 20px; border:none; border-radius:8px; cursor:pointer">Hủy</button>
+                <button onclick="app.saveLink()" id="btn-save" class="btn-primary" style="width:auto">Lưu lại</button>
             </div>
         </div>
     </div>
 
-    <div id="toast">Thông báo</div>
+    <div id="toast"><i class="fas fa-check-circle" style="color:#2ecc71"></i> <span id="toast-msg">Thành công</span></div>
 
     <script>
-        // --- CẤU HÌNH ---
-        // Thay link Script của bạn vào đây
+        // --- DÁN URL API CỦA BẠN VÀO DƯỚI ĐÂY ---
         const API = 'https://script.google.com/macros/s/AKfycbzNix_roJMywRXJHqwNftO0eu86h9i6ZJlPdwkpbE_j3_PA4-EubIF_1lhhJGrRKg8K/exec'; 
 
         const app = {
-            data: [],
-            userMDD: '',
-            isEdit: false,
+            data: [], userMDD: '', isEdit: false,
 
             login: function() {
-                const u = document.getElementById('u').value;
-                const p = document.getElementById('p').value;
-                const btn = document.querySelector('.login-box button');
-                const msg = document.getElementById('login-msg');
+                const u = document.getElementById('u').value, p = document.getElementById('p').value;
+                const btn = document.querySelector('#login-overlay button');
+                btn.innerText = "Đang kết nối..."; btn.disabled = true;
 
-                btn.innerText = "Đang kiểm tra..."; btn.disabled = true;
-
-                const fd = new FormData();
-                fd.append('action', 'login'); fd.append('user', u); fd.append('pass', p);
-
-                fetch(API, { method: 'POST', body: fd }).then(r => r.json()).then(res => {
-                    if(res.status == 'success') {
+                const fd = new FormData(); fd.append('action', 'login'); fd.append('user', u); fd.append('pass', p);
+                fetch(API, {method:'POST', body:fd}).then(r=>r.json()).then(res=>{
+                    if(res.status=='success'){
                         this.userMDD = res.mdd;
                         document.getElementById('user-display').innerText = u;
-                        document.getElementById('login-overlay').classList.add('hidden');
+                        document.getElementById('login-overlay').classList.remove('active');
                         this.loadLinks();
                     } else {
-                        msg.innerText = "Sai tài khoản hoặc mật khẩu!";
-                        btn.innerText = "Đăng nhập"; btn.disabled = false;
+                        document.getElementById('login-msg').innerText = "Sai thông tin đăng nhập!";
+                        btn.innerText = "Khởi động tàu vũ trụ 🚀"; btn.disabled = false;
                     }
-                });
+                }).catch(()=> { btn.disabled = false; alert("Lỗi kết nối Server"); });
             },
 
             loadLinks: function() {
-                fetch(API + '?action=getLinks&mdd=' + this.userMDD).then(r => r.json()).then(res => {
-                    this.data = res;
-                    this.render(this.data);
+                document.getElementById('grid').innerHTML = '<p style="text-align:center; width:100%; color:white; font-size:1.2rem">Đang tải dữ liệu từ vũ trụ...</p>';
+                fetch(API + '?action=getLinks&mdd=' + this.userMDD).then(r=>r.json()).then(res=>{
+                    this.data = res; this.render(this.data);
                 });
             },
 
             render: function(list) {
-                const grid = document.getElementById('grid');
-                grid.innerHTML = "";
-                if(list.length == 0) { grid.innerHTML = "<p style='width:100%; text-align:center'>Không có dữ liệu.</p>"; return; }
-
-                list.forEach(item => {
-                    // item: [0]Time, [1]Title, [2]Url, [3]Cate, [4]Status, [5]MDD, [6]Desc, [7]Icon, [8]RowIndex
-                    const icon = item[7] || "https://www.google.com/s2/favicons?domain=google.com";
+                const grid = document.getElementById('grid'); grid.innerHTML = "";
+                if(list.length==0) { grid.innerHTML = '<p style="text-align:center; width:100%">Chưa có link nào.</p>'; return;}
+                
+                list.forEach(i => {
+                    // i: [0]Time, [1]Title, [2]Url, [3]Cate, [4]Stat, [5]MDD, [6]Desc, [7]Icon, [8]Row
+                    const icon = i[7] || "https://cdn-icons-png.flaticon.com/512/1006/1006771.png";
                     grid.innerHTML += `
-                        <div class="card">
+                        <div class="card glass">
                             <div class="card-header">
-                                <img src="${icon}" class="card-icon" onerror="this.src='https://via.placeholder.com/40'">
-                                <div style="overflow:hidden;">
-                                    <div class="card-title" title="${item[1]}">${item[1]}</div>
-                                    <span class="card-cat">${item[3]}</span>
+                                <img src="${icon}" class="card-icon" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1006/1006771.png'">
+                                <div style="flex:1; overflow:hidden">
+                                    <div class="card-title" title="${i[1]}">${i[1]}</div>
+                                    <span class="card-tag">${i[3]}</span>
                                 </div>
                             </div>
-                            <div class="card-desc">${item[6]}</div>
+                            <div class="card-desc">${i[6]}</div>
                             <div class="card-actions">
                                 <div>
-                                    <a href="${item[2]}" target="_blank" class="btn-icon" title="Mở"><i class="fas fa-external-link-alt"></i></a>
-                                    <button onclick="app.copyLink('${item[2]}')" class="btn-icon" title="Copy"><i class="fas fa-copy"></i></button>
+                                    <a href="${i[2]}" target="_blank" class="action-btn" title="Mở"><i class="fas fa-external-link-alt"></i></a>
                                 </div>
-                                <div>
-                                    <button onclick="app.editModal(${item[8]})" class="btn-icon" title="Sửa"><i class="fas fa-pen"></i></button>
-                                    <button onclick="app.deleteLink(${item[8]})" class="btn-icon del" title="Xóa"><i class="fas fa-trash"></i></button>
+                                <div style="display:flex; gap:5px">
+                                    <button onclick="app.copyLink('${i[2]}')" class="action-btn" title="Copy"><i class="fas fa-copy"></i></button>
+                                    <button onclick="app.editModal(${i[8]})" class="action-btn" title="Sửa"><i class="fas fa-pen"></i></button>
+                                    <button onclick="app.deleteLink(${i[8]})" class="action-btn del" title="Xóa"><i class="fas fa-trash"></i></button>
                                 </div>
                             </div>
                         </div>
@@ -241,132 +385,92 @@
                 });
             },
 
-            filter: function(cate, el) {
-                // Highlight active menu
-                document.querySelectorAll('.menu-item').forEach(e => e.classList.remove('active'));
+            filter: function(c, el) {
+                document.querySelectorAll('.menu-item').forEach(e=>e.classList.remove('active'));
                 el.classList.add('active');
-                
-                // Filter logic
-                if(cate == 'all') this.render(this.data);
-                else {
-                    const filtered = this.data.filter(x => x[3] == cate);
-                    this.render(filtered);
-                }
+                this.render(c=='all' ? this.data : this.data.filter(x=>x[3]==c));
             },
 
             search: function() {
-                const key = document.getElementById('search-inp').value.toLowerCase();
-                const filtered = this.data.filter(x => 
-                    String(x[1]).toLowerCase().includes(key) || 
-                    String(x[2]).toLowerCase().includes(key) ||
-                    String(x[6]).toLowerCase().includes(key)
-                );
-                this.render(filtered);
+                const k = document.getElementById('search-inp').value.toLowerCase();
+                this.render(this.data.filter(x => String(x[1]).toLowerCase().includes(k) || String(x[2]).toLowerCase().includes(k)));
             },
 
             openModal: function() {
                 this.isEdit = false;
                 document.getElementById('modal-title').innerText = "Thêm Link Mới";
-                document.getElementById('inp-url').value = "";
-                document.getElementById('inp-title').value = "";
-                document.getElementById('inp-desc').value = "";
-                document.getElementById('inp-icon').value = "";
-                document.getElementById('modal').style.display = 'flex';
+                ['inp-url','inp-title','inp-desc','inp-icon'].forEach(id=>document.getElementById(id).value="");
+                document.getElementById('modal-overlay').classList.add('active');
             },
 
-            editModal: function(rowIndex) {
-                const item = this.data.find(x => x[8] == rowIndex);
+            editModal: function(row) {
+                const item = this.data.find(x=>x[8]==row);
                 if(!item) return;
-
                 this.isEdit = true;
                 document.getElementById('modal-title').innerText = "Cập Nhật Link";
-                document.getElementById('inp-row').value = rowIndex;
+                document.getElementById('inp-row').value = row;
                 document.getElementById('inp-title').value = item[1];
                 document.getElementById('inp-url').value = item[2];
                 document.getElementById('inp-cate').value = item[3];
                 document.getElementById('inp-desc').value = item[6];
                 document.getElementById('inp-icon').value = item[7];
-                document.getElementById('modal').style.display = 'flex';
+                document.getElementById('modal-overlay').classList.add('active');
             },
 
             fetchMeta: function() {
                 const url = document.getElementById('inp-url').value;
                 if(url.length < 5) return;
+                const btn = document.querySelector('.inp-group button');
+                btn.innerHTML = "<i class='fas fa-spinner fa-spin'></i>";
                 
-                const btn = document.querySelector('.form-group button');
-                btn.innerText = "⏳";
-                
-                const fd = new FormData();
-                fd.append('action', 'fetchMeta'); fd.append('url', url);
-                
+                const fd = new FormData(); fd.append('action', 'fetchMeta'); fd.append('url', url);
                 fetch(API, {method:'POST', body:fd}).then(r=>r.json()).then(res=>{
-                    btn.innerText = "⚡";
+                    btn.innerHTML = "⚡";
                     if(res.status=='success'){
                         document.getElementById('inp-title').value = res.title;
                         document.getElementById('inp-desc').value = res.description;
                         document.getElementById('inp-icon').value = res.icon;
-                        this.showToast("Đã lấy thông tin web!");
+                        this.toast("Đã lấy thông tin!");
                     }
                 });
             },
 
             saveLink: function() {
-                const url = document.getElementById('inp-url').value;
-                const title = document.getElementById('inp-title').value;
-                const cate = document.getElementById('inp-cate').value;
-                const desc = document.getElementById('inp-desc').value;
-                const icon = document.getElementById('inp-icon').value || "https://www.google.com/s2/favicons?domain=google.com";
-                const row = document.getElementById('inp-row').value;
-
-                if(!url || !title) return alert("Cần nhập URL và Tiêu đề");
-
-                const btn = document.getElementById('btn-save');
-                btn.innerText = "Đang lưu..."; btn.disabled = true;
-
+                const u = document.getElementById('inp-url').value, t = document.getElementById('inp-title').value;
+                if(!u || !t) return alert("Thiếu URL hoặc Tiêu đề");
+                
+                const btn = document.getElementById('btn-save'); btn.innerText = "Lưu..."; btn.disabled = true;
                 const fd = new FormData();
-                fd.append('mdd', this.userMDD);
-                fd.append('url', url); fd.append('title', title);
-                fd.append('category', cate); fd.append('desc', desc);
-                fd.append('icon', icon);
+                fd.append('mdd', this.userMDD); fd.append('url', u); fd.append('title', t);
+                fd.append('category', document.getElementById('inp-cate').value);
+                fd.append('desc', document.getElementById('inp-desc').value);
+                fd.append('icon', document.getElementById('inp-icon').value);
+                
+                if(this.isEdit) { fd.append('action', 'editLink'); fd.append('row', document.getElementById('inp-row').value); }
+                else fd.append('action', 'addLink');
 
-                if(this.isEdit) {
-                    fd.append('action', 'editLink');
-                    fd.append('row', row);
-                } else {
-                    fd.append('action', 'addLink');
-                }
-
-                fetch(API, {method:'POST', body:fd}).then(r=>{
-                    this.showToast(this.isEdit ? "Cập nhật thành công!" : "Đã thêm mới!");
-                    document.getElementById('modal').style.display = 'none';
+                fetch(API, {method:'POST', body:fd}).then(()=>{
+                    this.toast("Đã lưu thành công!");
+                    document.getElementById('modal-overlay').classList.remove('active');
                     btn.innerText = "Lưu lại"; btn.disabled = false;
                     this.loadLinks();
                 });
             },
 
-            deleteLink: function(row) {
+            deleteLink: function(r) {
                 if(!confirm("Xóa link này?")) return;
-                const fd = new FormData();
-                fd.append('action', 'deleteLink'); fd.append('row', row);
-                
-                // Optimistic UI update (Xóa ngay trên giao diện cho mượt)
-                this.data = this.data.filter(x => x[8] != row);
-                this.render(this.data);
-
+                this.data = this.data.filter(x=>x[8]!=r); this.render(this.data); // Optimistic update
+                const fd = new FormData(); fd.append('action', 'deleteLink'); fd.append('row', r);
                 fetch(API, {method:'POST', body:fd});
-                this.showToast("Đã xóa link");
+                this.toast("Đã xóa link");
             },
 
-            copyLink: function(url) {
-                navigator.clipboard.writeText(url);
-                this.showToast("Đã copy link!");
-            },
+            copyLink: function(t) { navigator.clipboard.writeText(t); this.toast("Đã copy link!"); },
 
-            showToast: function(msg) {
+            toast: function(m) {
                 const t = document.getElementById('toast');
-                t.innerText = msg;
-                t.classList.add('toast-show');
-                setTimeout(()=>t.classList.remove('toast-show'), 3000);
+                document.getElementById('toast-msg').innerText = m;
+                t.classList.add('show'); setTimeout(()=>t.classList.remove('show'), 3000);
             }
         };
     </script>
