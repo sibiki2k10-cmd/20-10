@@ -8,17 +8,27 @@
         body { font-family: monospace; background: #111; color: #0f0; padding: 20px; }
         .container { max-width: 600px; margin: 0 auto; }
         
-        /* Login Screen */
+        /* Login CSS */
         #login-screen { text-align: center; margin-top: 100px; border: 1px solid #333; padding: 40px; border-radius: 10px; }
         input { background: #222; border: 1px solid #444; color: white; padding: 10px; margin: 5px; width: 80%; }
-        button { background: #0f0; color: black; border: none; padding: 10px 20px; cursor: pointer; font-weight: bold; margin-top: 10px; }
-        button:hover { background: #00cc00; }
+        button.login-btn { background: #0f0; color: black; border: none; padding: 10px 20px; cursor: pointer; font-weight: bold; margin-top: 10px; }
 
-        /* Dashboard */
-        .msg-card { background: #1a1a1a; border-left: 4px solid #ff69b4; margin-bottom: 15px; padding: 15px; border-radius: 4px; }
+        /* Dashboard CSS */
+        .msg-card { 
+            background: #1a1a1a; border: 1px solid #333; margin-bottom: 15px; 
+            padding: 15px; border-radius: 4px; position: relative;
+        }
         .meta { color: #888; font-size: 0.8rem; margin-bottom: 5px; display: flex; justify-content: space-between; }
-        .content { font-size: 1.1rem; color: #eee; white-space: pre-wrap; }
+        .content { font-size: 1.1rem; color: #eee; white-space: pre-wrap; margin-right: 40px; }
         .hidden { display: none; }
+
+        /* Nút Xóa */
+        .btn-delete {
+            position: absolute; top: 10px; right: 10px;
+            background: transparent; border: 1px solid #d9534f; color: #d9534f;
+            padding: 5px 10px; cursor: pointer; border-radius: 3px;
+        }
+        .btn-delete:hover { background: #d9534f; color: white; }
     </style>
 </head>
 <body>
@@ -29,24 +39,24 @@
             <input type="text" id="user" placeholder="Username">
             <input type="password" id="pass" placeholder="Password">
             <br>
-            <button onclick="login()">LOGIN</button>
+            <button class="login-btn" onclick="login()">LOGIN</button>
             <p id="status" style="color:red; margin-top:10px"></p>
         </div>
 
         <div id="dashboard" class="hidden">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
                 <h2>📨 INBOX MESSAGES</h2>
-                <button onclick="logout()" style="background:#d9534f; color:white">LOGOUT</button>
+                <button onclick="logout()" style="background:#d9534f; color:white; border:none; padding:5px 10px; cursor:pointer">LOGOUT</button>
             </div>
             
-            <button onclick="loadData()">🔄 Refresh Data</button>
+            <button onclick="loadData()" style="cursor:pointer; padding:5px;">🔄 Refresh Data</button>
             <div id="list" style="margin-top:20px">Loading...</div>
         </div>
     </div>
 
     <script>
-        // --- CẤU HÌNH: DÁN LINK SCRIPT CỦA BẠN VÀO DÒNG DƯỚI ---
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyC9FPcqCNZIhh3nCA7o5I8Zlfxd8n8QdQuH31pQYw_tA7PYUrYmbIs6REK0ve7QngA/exec'; 
+        // --- DÁN LINK SCRIPT CỦA BẠN VÀO ĐÂY ---
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyw5RNtf8-GLLeAnGC2NrtpoJhHGiHBvgGji986GvqmDQhgJjgdoq7PiywfqxiCY0il/exec'; 
 
         function login() {
             const u = document.getElementById('user').value;
@@ -74,25 +84,54 @@
         }
 
         function loadData() {
+            document.getElementById('list').innerHTML = "Đang tải...";
             fetch(SCRIPT_URL + '?action=getMessages')
             .then(res => res.json())
             .then(data => {
                 const list = document.getElementById('list');
                 list.innerHTML = "";
+                if(data.length === 0) {
+                    list.innerHTML = "Không có tin nhắn nào.";
+                    return;
+                }
                 data.forEach(row => {
-                    // row[0]=Time, row[1]=Name, row[2]=Message
+                    // row[0]=Time, row[1]=Name, row[2]=Msg, row[3]=Status, row[4]=RowIndex (Số dòng)
+                    const rowIndex = row[4]; 
+                    
                     list.innerHTML += `
-                        <div class="msg-card">
+                        <div class="msg-card" id="card-${rowIndex}">
                             <div class="meta">
-                                <span>FROM: <b>${row[1]}</b></span>
+                                <span>FROM: <b style="color:#ff69b4">${row[1]}</b></span>
                                 <span>${row[0]}</span>
                             </div>
                             <div class="content">${row[2]}</div>
+                            <button class="btn-delete" onclick="deleteMsg(${rowIndex})">XÓA</button>
                         </div>
                     `;
                 });
+            });
+        }
+
+        function deleteMsg(rowIndex) {
+            if(!confirm("Bạn có chắc chắn muốn xóa tin nhắn này không?")) return;
+
+            // Hiệu ứng mờ đi để biết đang xử lý
+            const card = document.getElementById(`card-${rowIndex}`);
+            card.style.opacity = "0.5";
+
+            const formData = new FormData();
+            formData.append('action', 'deleteMessage');
+            formData.append('row', rowIndex);
+
+            fetch(SCRIPT_URL, { method: 'POST', body: formData })
+            .then(() => {
+                // Xóa thành công thì ẩn luôn cái thẻ đó đi
+                card.remove(); 
             })
-            .catch(err => document.getElementById('list').innerHTML = "Chưa có tin nhắn nào.");
+            .catch(err => {
+                alert("Lỗi khi xóa!");
+                card.style.opacity = "1";
+            });
         }
 
         function logout() { location.reload(); }
