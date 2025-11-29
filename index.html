@@ -3,164 +3,209 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Private Links 🔒</title>
+    <title>Smart Link Saver 🧠</title>
     <style>
         :root { --primary: #0984e3; --bg: #f5f6fa; --card: #fff; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 20px; display: flex; justify-content: center; }
         .container { width: 100%; max-width: 600px; }
         
-        /* Login Form */
         #login-screen { background: var(--card); padding: 40px; border-radius: 10px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-top: 50px; }
-        
-        /* Dashboard */
         .hidden { display: none; }
+        
+        /* Input Group */
         .input-group { background: var(--card); padding: 20px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        
         input, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #dcdde1; border-radius: 6px; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
-        button:hover { opacity: 0.9; }
         
-        /* User Info Bar */
-        .user-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; font-weight: bold; color: #2d3436; }
+        /* URL Input Area (Flexbox để đặt nút Get bên cạnh) */
+        .url-row { display: flex; gap: 5px; align-items: center; }
+        .url-row input { flex: 1; } /* Chiếm hết chỗ trống */
+        .btn-get { width: auto; padding: 12px; background: #6c5ce7; color: white; border: none; border-radius: 6px; cursor: pointer; }
         
-        /* Link Card */
-        .link-card { background: var(--card); padding: 15px; margin-bottom: 10px; border-radius: 8px; border-left: 5px solid var(--primary); display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        /* Main Button */
+        .btn-save { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 10px; }
+        
+        /* Link Card Nâng cao */
+        .link-card { background: var(--card); padding: 15px; margin-bottom: 10px; border-radius: 8px; display: flex; gap: 15px; align-items: start; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .site-icon { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 1px solid #eee; margin-top: 5px;}
+        .link-info { flex: 1; }
         .link-info h3 { margin: 0 0 5px 0; font-size: 1.1rem; color: #2d3436; }
-        .link-meta { font-size: 0.85rem; color: #636e72; }
-        .tag { background: #dfe6e9; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; color: #2d3436; margin-right: 5px; }
-        
-        .actions a { text-decoration: none; background: #00b894; color: white; padding: 5px 10px; border-radius: 4px; font-size: 0.9rem; margin-right: 5px; }
-        .btn-del { background: #fab1a0; color: #d63031; padding: 5px 10px; border-radius: 4px; cursor: pointer; border: none; }
+        .desc { font-size: 0.85rem; color: #636e72; margin-bottom: 5px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .tag { background: #dfe6e9; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; color: #2d3436; }
+        .actions { display: flex; flex-direction: column; gap: 5px; }
+        .btn-del { background: #fab1a0; color: #d63031; padding: 5px 10px; border-radius: 4px; cursor: pointer; border: none; font-size: 0.8rem; }
+        .btn-open { text-decoration: none; background: #00b894; color: white; padding: 5px 10px; border-radius: 4px; font-size: 0.8rem; text-align: center;}
     </style>
 </head>
 <body>
 
     <div class="container">
         <div id="login-screen">
-            <h2>🔐 Private Link Saver</h2>
+            <h2>🔐 Smart Link Saver</h2>
             <input type="text" id="user" placeholder="Username">
             <input type="password" id="pass" placeholder="Password">
-            <button onclick="login()">Đăng nhập an toàn</button>
+            <button class="btn-save" onclick="login()">Đăng nhập</button>
             <p id="msg" style="color:red; margin-top:10px"></p>
         </div>
 
         <div id="app" class="hidden">
-            <div class="user-bar">
-                <span id="welcome-msg">Xin chào!</span>
-                <button onclick="logout()" style="width: auto; padding: 5px 10px; background: #636e72;">Thoát</button>
+            <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
+                <span id="welcome-msg" style="font-weight:bold"></span>
+                <a href="#" onclick="location.reload()" style="color:#636e72">Thoát</a>
             </div>
 
             <div class="input-group">
                 <h3>Thêm Link Mới</h3>
-                <input type="text" id="linkTitle" placeholder="Tiêu đề trang web">
-                <input type="url" id="linkUrl" placeholder="Dán URL vào đây (https://...)">
+                
+                <div class="url-row">
+                    <input type="url" id="linkUrl" placeholder="Dán URL vào đây (https://...)" onchange="autoFetch()">
+                    <button class="btn-get" onclick="autoFetch()">⚡</button>
+                </div>
+                
+                <input type="text" id="linkTitle" placeholder="Tiêu đề (Tự động lấy)">
+                <input type="hidden" id="linkDesc">
+                <input type="hidden" id="linkIcon">
+
                 <select id="linkCategory">
                     <option value="Công việc">💼 Công việc</option>
                     <option value="Học tập">📚 Học tập</option>
                     <option value="Giải trí">🎬 Giải trí</option>
                     <option value="Khác">✨ Khác</option>
                 </select>
-                <button onclick="addLink()">💾 Lưu vào kho của tôi</button>
+                <button class="btn-save" onclick="addLink()">💾 Lưu Link</button>
+                <p id="fetch-status" style="font-size:0.8rem; color:#0984e3; margin-top:5px;"></p>
             </div>
 
-            <div id="link-list">
-                <p style="text-align:center">Đang tải dữ liệu...</p>
-            </div>
+            <div id="link-list">Loading...</div>
         </div>
     </div>
 
     <script>
-        // --- CẤU HÌNH: DÁN LINK SCRIPT VÀO ĐÂY ---
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwmgOyiaXJOGMHX_pDIL0JHNcJJrl876pR4ltwhxxoUZaAl7P2gJtBEVxNcScn7lWbd/exec'; 
+        // --- DÁN LINK SCRIPT VÀO ĐÂY ---
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyHKJNDbK8-Fd9BnHFJRWE_PmXYtzdQz6NB171bPfazkxRGG9iSh-fy-akFyV5pQhud/exec'; 
 
-        // Biến toàn cục để lưu mã định danh người dùng hiện tại
         let currentUserMDD = "";
-        let currentUserName = "";
 
-        function login() {
-            const u = document.getElementById('user').value;
-            const p = document.getElementById('pass').value;
-            document.getElementById('msg').innerText = "Đang xác thực...";
-
+        // HÀM TỰ ĐỘNG LẤY THÔNG TIN
+        function autoFetch() {
+            const url = document.getElementById('linkUrl').value;
+            const status = document.getElementById('fetch-status');
+            
+            if(!url.startsWith('http')) return; // Chưa nhập link đúng thì thôi
+            
+            status.innerText = "⏳ Đang phân tích trang web...";
+            
             const fd = new FormData();
-            fd.append('action', 'login');
-            fd.append('user', u);
-            fd.append('pass', p);
+            fd.append('action', 'fetchMeta');
+            fd.append('url', url);
 
             fetch(SCRIPT_URL, { method: 'POST', body: fd })
             .then(res => res.json())
             .then(data => {
                 if(data.status == 'success') {
-                    // LƯU MDD VÀO BIẾN
-                    currentUserMDD = data.mdd;
-                    currentUserName = u;
-                    
-                    document.getElementById('welcome-msg').innerText = "👤 " + currentUserName;
-                    document.getElementById('login-screen').classList.add('hidden');
-                    document.getElementById('app').classList.remove('hidden');
-                    
-                    // Tải danh sách của riêng user này
-                    loadLinks();
+                    document.getElementById('linkTitle').value = data.title;
+                    document.getElementById('linkDesc').value = data.description;
+                    document.getElementById('linkIcon').value = data.icon;
+                    status.innerText = "✅ Đã lấy thông tin thành công!";
+                    setTimeout(() => status.innerText = "", 3000);
                 } else {
-                    document.getElementById('msg').innerText = "Sai tài khoản hoặc mật khẩu!";
+                    status.innerText = "⚠️ Không lấy được tự động, hãy nhập tay.";
                 }
             });
         }
 
+        // HÀM ĐĂNG NHẬP
+        function login() {
+            const u = document.getElementById('user').value;
+            const p = document.getElementById('pass').value;
+            document.getElementById('msg').innerText = "Đang kiểm tra...";
+
+            const fd = new FormData();
+            fd.append('action', 'login');
+            fd.append('user', u); fd.append('pass', p);
+
+            fetch(SCRIPT_URL, { method: 'POST', body: fd })
+            .then(res => res.json())
+            .then(data => {
+                if(data.status == 'success') {
+                    currentUserMDD = data.mdd;
+                    document.getElementById('welcome-msg').innerText = "Xin chào, " + u;
+                    document.getElementById('login-screen').classList.add('hidden');
+                    document.getElementById('app').classList.remove('hidden');
+                    loadLinks();
+                } else {
+                    document.getElementById('msg').innerText = "Sai thông tin!";
+                }
+            });
+        }
+
+        // HÀM THÊM LINK
         function addLink() {
             const title = document.getElementById('linkTitle').value;
             const url = document.getElementById('linkUrl').value;
             const cate = document.getElementById('linkCategory').value;
+            // Lấy thêm 2 thông tin ẩn
+            const desc = document.getElementById('linkDesc').value;
+            let icon = document.getElementById('linkIcon').value;
 
-            if(!title || !url) return alert("Vui lòng nhập đủ thông tin!");
+            if(!title || !url) return alert("Thiếu URL hoặc Tiêu đề");
+            
+            // Nếu không lấy được icon tự động thì dùng icon mặc định
+            if(!icon) icon = "https://cdn-icons-png.flaticon.com/512/1006/1006771.png";
 
-            const btn = document.querySelector('button[onclick="addLink()"]');
-            btn.innerText = "Đang mã hóa & lưu...";
-            btn.disabled = true;
+            const btn = document.querySelector('.btn-save');
+            btn.innerText = "Đang lưu..."; btn.disabled = true;
 
             const fd = new FormData();
             fd.append('action', 'addLink');
             fd.append('title', title);
             fd.append('url', url);
             fd.append('category', cate);
-            // QUAN TRỌNG: Gửi kèm MDD để Server biết link này của ai
-            fd.append('mdd', currentUserMDD); 
+            fd.append('desc', desc);
+            fd.append('icon', icon);
+            fd.append('mdd', currentUserMDD);
 
             fetch(SCRIPT_URL, { method: 'POST', body: fd })
             .then(() => {
-                alert("Đã lưu thành công!");
-                document.getElementById('linkTitle').value = "";
+                // Reset form
                 document.getElementById('linkUrl').value = "";
-                btn.innerText = "💾 Lưu vào kho của tôi";
-                btn.disabled = false;
+                document.getElementById('linkTitle').value = "";
+                document.getElementById('linkDesc').value = "";
+                document.getElementById('linkIcon').value = "";
+                btn.innerText = "💾 Lưu Link"; btn.disabled = false;
                 loadLinks();
             });
         }
 
+        // HÀM TẢI DANH SÁCH
         function loadLinks() {
-            // Gửi kèm MDD lên Server để lọc dữ liệu
             fetch(SCRIPT_URL + '?action=getLinks&mdd=' + currentUserMDD)
             .then(res => res.json())
             .then(data => {
                 const list = document.getElementById('link-list');
                 list.innerHTML = "";
-                
-                if(data.length === 0) return list.innerHTML = "<p style='text-align:center; color:#888'>Kho của bạn đang trống.</p>";
+                if(data.length === 0) return list.innerHTML = "<p align='center'>Trống trơn.</p>";
 
                 data.forEach(row => {
-                    // row[6] là số dòng (rowIndex) đã được thêm ở server
+                    // Cấu trúc trả về: 
+                    // [0]Time, [1]Title, [2]URL, [3]Cate, [4]Status, [5]MDD, [6]Desc, [7]Icon, [8]RowIndex
+                    
+                    const icon = row[7] || "https://cdn-icons-png.flaticon.com/512/1006/1006771.png";
+                    const desc = row[6] || "Không có mô tả.";
+
                     list.innerHTML += `
                         <div class="link-card">
+                            <img src="${icon}" class="site-icon" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1006/1006771.png'">
                             <div class="link-info">
                                 <h3>${row[1]}</h3>
-                                <div class="link-meta">
+                                <div class="desc">${desc}</div>
+                                <div style="margin-top:5px">
                                     <span class="tag">${row[3]}</span> 
-                                    ${new Date(row[0]).toLocaleDateString()}
+                                    <span style="font-size:0.75rem; color:#aaa">${new Date(row[0]).toLocaleDateString()}</span>
                                 </div>
                             </div>
                             <div class="actions">
-                                <a href="${row[2]}" target="_blank">Mở ↗</a>
-                                <button class="btn-del" onclick="deleteLink(${row[6]})">Xóa</button>
+                                <a href="${row[2]}" target="_blank" class="btn-open">Mở</a>
+                                <button class="btn-del" onclick="deleteLink(${row[8]})">Xóa</button>
                             </div>
                         </div>
                     `;
@@ -168,19 +213,13 @@
             });
         }
 
-        function deleteLink(rowIndex) {
-            if(!confirm("Xóa vĩnh viễn link này?")) return;
-            
-            const fd = new FormData();
-            fd.append('action', 'deleteLink');
-            fd.append('row', rowIndex);
-
-            fetch(SCRIPT_URL, { method: 'POST', body: fd })
-            .then(() => loadLinks());
-        }
-
-        function logout() {
-            location.reload();
+        function deleteLink(idx) {
+            if(confirm("Xóa nhé?")) {
+                const fd = new FormData();
+                fd.append('action', 'deleteLink');
+                fd.append('row', idx);
+                fetch(SCRIPT_URL, { method: 'POST', body: fd }).then(() => loadLinks());
+            }
         }
     </script>
 
