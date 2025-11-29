@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang Quản Trị (Admin)</title>
+    <style>
+        body { font-family: sans-serif; background: #eee; padding: 20px; }
+        .container { max-width: 500px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        input { width: 100%; padding: 10px; margin: 10px 0; box-sizing: border-box; }
+        button { width: 100%; padding: 10px; background: #333; color: white; border: none; cursor: pointer; }
+        button:hover { background: #555; }
+        .hidden { display: none; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div id="login-form">
+            <h2>🔐 Đăng Nhập Admin</h2>
+            <input type="text" id="user" placeholder="Username">
+            <input type="password" id="pass" placeholder="Password">
+            <button onclick="login()">Đăng Nhập</button>
+            <p id="msg" style="color:red"></p>
+        </div>
+
+        <div id="dashboard" class="hidden">
+            <h2>Xin chào, Admin! 👋</h2>
+            <button onclick="logout()" style="background: #d9534f; width: auto;">Đăng xuất</button>
+            
+            <h3>Thêm tài khoản mới</h3>
+            <input type="text" id="newUser" placeholder="Username mới">
+            <input type="text" id="newPass" placeholder="Password mới">
+            <button onclick="addUser()" style="background: #28a745;">Tạo tài khoản</button>
+
+            <h3>Danh sách người dùng</h3>
+            <button onclick="loadUsers()">🔄 Làm mới danh sách</button>
+            <table id="userTable">
+                <thead>
+                    <tr><th>User</th><th>Role</th></tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // DÁN URL SCRIPT MỚI CỦA BẠN VÀO ĐÂY
+        const SCRIPT_URL = 'DÁN_LINK_APPS_SCRIPT_VÀO_ĐÂY';
+
+        function login() {
+            const u = document.getElementById('user').value;
+            const p = document.getElementById('pass').value;
+            const msg = document.getElementById('msg');
+            msg.innerText = "Đang kiểm tra...";
+
+            // Gửi request login
+            const formData = new FormData();
+            formData.append('action', 'login');
+            formData.append('user', u);
+            formData.append('pass', p);
+
+            fetch(SCRIPT_URL, { method: 'POST', body: formData })
+            .then(res => res.json())
+            .then(data => {
+                if(data.status == 'success' && data.role == 'admin') {
+                    document.getElementById('login-form').classList.add('hidden');
+                    document.getElementById('dashboard').classList.remove('hidden');
+                    loadUsers(); // Tự động tải danh sách
+                } else {
+                    msg.innerText = "Sai mật khẩu hoặc không phải Admin!";
+                }
+            });
+        }
+
+        function loadUsers() {
+            // Dùng doGet để lấy danh sách
+            fetch(SCRIPT_URL + '?action=getUsers')
+            .then(res => res.json())
+            .then(data => {
+                const tbody = document.getElementById('tableBody');
+                tbody.innerHTML = ""; // Xóa cũ
+                data.forEach(tk => {
+                    tbody.innerHTML += `<tr><td>${tk.user}</td><td>${tk.role}</td></tr>`;
+                });
+            });
+        }
+
+        function addUser() {
+            const u = document.getElementById('newUser').value;
+            const p = document.getElementById('newPass').value;
+            
+            const formData = new FormData();
+            formData.append('action', 'addUser');
+            formData.append('user', u);
+            formData.append('pass', p);
+
+            fetch(SCRIPT_URL, { method: 'POST', body: formData })
+            .then(() => {
+                alert("Đã thêm thành công!");
+                document.getElementById('newUser').value = "";
+                document.getElementById('newPass').value = "";
+                loadUsers();
+            });
+        }
+
+        function logout() {
+            location.reload();
+        }
+    </script>
+
+</body>
+</html>
