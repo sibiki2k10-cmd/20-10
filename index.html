@@ -37,6 +37,7 @@
 
             // Tạo data gửi đi
             const formData = new FormData(form);
+            formData.append('action', 'sendMessage');
 
             fetch(scriptURL, { method: 'POST', body: formData})
                 .then(response => { 
