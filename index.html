@@ -3,209 +3,223 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Link Saver 🧠</title>
+    <title>Smart Link Keeper 🚀</title>
     <style>
-        :root { --primary: #0984e3; --bg: #f5f6fa; --card: #fff; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 20px; display: flex; justify-content: center; }
-        .container { width: 100%; max-width: 600px; }
-        
-        #login-screen { background: var(--card); padding: 40px; border-radius: 10px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-top: 50px; }
+        :root { --primary: #4a69bd; --bg: #f1f2f6; --text: #2f3542; --card: #ffffff; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; display: flex; justify-content: center; }
+        .container { width: 100%; max-width: 550px; }
         .hidden { display: none; }
         
-        /* Input Group */
-        .input-group { background: var(--card); padding: 20px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        input, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #dcdde1; border-radius: 6px; box-sizing: border-box; }
+        /* LOGIN SCREEN */
+        #login-screen { background: var(--card); padding: 40px; border-radius: 12px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.1); margin-top: 60px; }
+        #login-screen h2 { color: var(--primary); margin-bottom: 20px; }
         
-        /* URL Input Area (Flexbox để đặt nút Get bên cạnh) */
-        .url-row { display: flex; gap: 5px; align-items: center; }
-        .url-row input { flex: 1; } /* Chiếm hết chỗ trống */
-        .btn-get { width: auto; padding: 12px; background: #6c5ce7; color: white; border: none; border-radius: 6px; cursor: pointer; }
+        /* INPUTS */
+        input, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #dfe4ea; border-radius: 8px; box-sizing: border-box; font-size: 14px; outline: none; transition: 0.3s; }
+        input:focus { border-color: var(--primary); box-shadow: 0 0 5px rgba(74, 105, 189, 0.3); }
         
-        /* Main Button */
-        .btn-save { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 10px; }
+        /* BUTTONS */
+        .btn { width: 100%; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; color: white; transition: 0.2s; }
+        .btn-primary { background: var(--primary); }
+        .btn-primary:hover { background: #3c5aa8; }
+        .btn-get { width: 50px; background: #6a89cc; margin-left: 5px; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; padding: 0;}
         
-        /* Link Card Nâng cao */
-        .link-card { background: var(--card); padding: 15px; margin-bottom: 10px; border-radius: 8px; display: flex; gap: 15px; align-items: start; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .site-icon { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 1px solid #eee; margin-top: 5px;}
-        .link-info { flex: 1; }
-        .link-info h3 { margin: 0 0 5px 0; font-size: 1.1rem; color: #2d3436; }
-        .desc { font-size: 0.85rem; color: #636e72; margin-bottom: 5px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        .tag { background: #dfe6e9; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; color: #2d3436; }
-        .actions { display: flex; flex-direction: column; gap: 5px; }
-        .btn-del { background: #fab1a0; color: #d63031; padding: 5px 10px; border-radius: 4px; cursor: pointer; border: none; font-size: 0.8rem; }
-        .btn-open { text-decoration: none; background: #00b894; color: white; padding: 5px 10px; border-radius: 4px; font-size: 0.8rem; text-align: center;}
+        /* APP UI */
+        .header-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .add-box { background: var(--card); padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .url-row { display: flex; align-items: center; }
+        
+        /* LINK CARDS */
+        .link-card { background: var(--card); border-radius: 10px; padding: 15px; margin-bottom: 15px; display: flex; gap: 15px; align-items: flex-start; box-shadow: 0 2px 5px rgba(0,0,0,0.05); transition: transform 0.2s; }
+        .link-card:hover { transform: translateY(-2px); }
+        
+        .site-icon { width: 45px; height: 45px; border-radius: 8px; object-fit: cover; border: 1px solid #f1f2f6; flex-shrink: 0; }
+        .link-content { flex: 1; overflow: hidden; }
+        .link-title { font-weight: bold; font-size: 1rem; margin-bottom: 4px; color: #2f3542; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .link-desc { font-size: 0.8rem; color: #747d8c; margin-bottom: 8px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 2.4em; }
+        .link-meta { display: flex; gap: 10px; font-size: 0.75rem; color: #a4b0be; }
+        .category-tag { background: #dfe4ea; padding: 2px 8px; border-radius: 4px; color: #57606f; font-weight: 500; }
+        
+        .link-actions { display: flex; flex-direction: column; gap: 5px; }
+        .btn-open { text-decoration: none; background: #2ecc71; color: white; padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; text-align: center; }
+        .btn-del { background: #ff6b6b; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; }
     </style>
 </head>
 <body>
 
     <div class="container">
         <div id="login-screen">
-            <h2>🔐 Smart Link Saver</h2>
-            <input type="text" id="user" placeholder="Username">
-            <input type="password" id="pass" placeholder="Password">
-            <button class="btn-save" onclick="login()">Đăng nhập</button>
-            <p id="msg" style="color:red; margin-top:10px"></p>
+            <h2>🔐 KHO LINK CÁ NHÂN</h2>
+            <input type="text" id="user" placeholder="Tên đăng nhập">
+            <input type="password" id="pass" placeholder="Mật khẩu">
+            <button class="btn btn-primary" onclick="login()">Đăng Nhập</button>
+            <p id="msg" style="color:#ff6b6b; margin-top:10px; font-size:0.9rem"></p>
         </div>
 
         <div id="app" class="hidden">
-            <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
-                <span id="welcome-msg" style="font-weight:bold"></span>
-                <a href="#" onclick="location.reload()" style="color:#636e72">Thoát</a>
+            <div class="header-bar">
+                <div id="welcome-text" style="font-weight:bold; color: #57606f;">Hello!</div>
+                <button onclick="location.reload()" style="background:none; border:1px solid #a4b0be; padding:5px 10px; border-radius:5px; cursor:pointer;">Thoát</button>
             </div>
 
-            <div class="input-group">
-                <h3>Thêm Link Mới</h3>
-                
+            <div class="add-box">
+                <h3 style="margin-top:0; color:var(--primary)">Thêm Link Mới</h3>
                 <div class="url-row">
-                    <input type="url" id="linkUrl" placeholder="Dán URL vào đây (https://...)" onchange="autoFetch()">
-                    <button class="btn-get" onclick="autoFetch()">⚡</button>
+                    <input type="url" id="inpUrl" placeholder="Dán link vào đây (https://...)" onchange="fetchInfo()">
+                    <button class="btn btn-get" onclick="fetchInfo()">⚡</button>
                 </div>
-                
-                <input type="text" id="linkTitle" placeholder="Tiêu đề (Tự động lấy)">
-                <input type="hidden" id="linkDesc">
-                <input type="hidden" id="linkIcon">
+                <div id="status-text" style="font-size:0.8rem; color:#ffa502; margin-bottom:5px; height:15px"></div>
 
-                <select id="linkCategory">
+                <input type="text" id="inpTitle" placeholder="Tiêu đề trang web">
+                <input type="hidden" id="inpDesc">
+                <input type="hidden" id="inpIcon">
+
+                <select id="inpCate">
                     <option value="Công việc">💼 Công việc</option>
                     <option value="Học tập">📚 Học tập</option>
                     <option value="Giải trí">🎬 Giải trí</option>
+                    <option value="Tài liệu">📂 Tài liệu</option>
                     <option value="Khác">✨ Khác</option>
                 </select>
-                <button class="btn-save" onclick="addLink()">💾 Lưu Link</button>
-                <p id="fetch-status" style="font-size:0.8rem; color:#0984e3; margin-top:5px;"></p>
+                <button class="btn btn-primary" onclick="addLink()">Lưu vào kho</button>
             </div>
 
-            <div id="link-list">Loading...</div>
+            <div id="list-container">
+                <p style="text-align:center; color:#a4b0be">Đang tải dữ liệu...</p>
+            </div>
         </div>
     </div>
 
     <script>
-        // --- DÁN LINK SCRIPT VÀO ĐÂY ---
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyHKJNDbK8-Fd9BnHFJRWE_PmXYtzdQz6NB171bPfazkxRGG9iSh-fy-akFyV5pQhud/exec'; 
+        // --- CẤU HÌNH: DÁN LINK SCRIPT MỚI CỦA BẠN VÀO ĐÂY ---
+        const API_URL = 'https://script.google.com/macros/s/AKfycbxgLT3IE1FNjBFdc4ZwjXeQHZ-h3lVLCu9u3CwOUau4lHSsg7Tq0t2uZkXQMdQlJb1-/exec'; 
 
-        let currentUserMDD = "";
+        let userMDD = "";
 
-        // HÀM TỰ ĐỘNG LẤY THÔNG TIN
-        function autoFetch() {
-            const url = document.getElementById('linkUrl').value;
-            const status = document.getElementById('fetch-status');
-            
-            if(!url.startsWith('http')) return; // Chưa nhập link đúng thì thôi
-            
-            status.innerText = "⏳ Đang phân tích trang web...";
-            
-            const fd = new FormData();
-            fd.append('action', 'fetchMeta');
-            fd.append('url', url);
-
-            fetch(SCRIPT_URL, { method: 'POST', body: fd })
-            .then(res => res.json())
-            .then(data => {
-                if(data.status == 'success') {
-                    document.getElementById('linkTitle').value = data.title;
-                    document.getElementById('linkDesc').value = data.description;
-                    document.getElementById('linkIcon').value = data.icon;
-                    status.innerText = "✅ Đã lấy thông tin thành công!";
-                    setTimeout(() => status.innerText = "", 3000);
-                } else {
-                    status.innerText = "⚠️ Không lấy được tự động, hãy nhập tay.";
-                }
-            });
-        }
-
-        // HÀM ĐĂNG NHẬP
+        // 1. Đăng nhập
         function login() {
             const u = document.getElementById('user').value;
             const p = document.getElementById('pass').value;
-            document.getElementById('msg').innerText = "Đang kiểm tra...";
+            const msg = document.getElementById('msg');
+            msg.innerText = "Đang kiểm tra...";
 
             const fd = new FormData();
             fd.append('action', 'login');
             fd.append('user', u); fd.append('pass', p);
 
-            fetch(SCRIPT_URL, { method: 'POST', body: fd })
+            fetch(API_URL, { method: 'POST', body: fd })
             .then(res => res.json())
             .then(data => {
                 if(data.status == 'success') {
-                    currentUserMDD = data.mdd;
-                    document.getElementById('welcome-msg').innerText = "Xin chào, " + u;
+                    userMDD = data.mdd; // Lưu mã định danh
+                    document.getElementById('welcome-text').innerText = "Xin chào, " + u;
                     document.getElementById('login-screen').classList.add('hidden');
                     document.getElementById('app').classList.remove('hidden');
                     loadLinks();
                 } else {
-                    document.getElementById('msg').innerText = "Sai thông tin!";
+                    msg.innerText = "❌ Sai tài khoản hoặc mật khẩu";
                 }
-            });
+            })
+            .catch(err => msg.innerText = "❌ Lỗi kết nối Server");
         }
 
-        // HÀM THÊM LINK
-        function addLink() {
-            const title = document.getElementById('linkTitle').value;
-            const url = document.getElementById('linkUrl').value;
-            const cate = document.getElementById('linkCategory').value;
-            // Lấy thêm 2 thông tin ẩn
-            const desc = document.getElementById('linkDesc').value;
-            let icon = document.getElementById('linkIcon').value;
-
-            if(!title || !url) return alert("Thiếu URL hoặc Tiêu đề");
+        // 2. Tự động lấy thông tin web
+        function fetchInfo() {
+            const url = document.getElementById('inpUrl').value;
+            const status = document.getElementById('status-text');
             
-            // Nếu không lấy được icon tự động thì dùng icon mặc định
+            if(url.length < 5) return;
+            status.innerText = "⏳ Đang phân tích...";
+            status.style.color = "#ffa502";
+
+            const fd = new FormData();
+            fd.append('action', 'fetchMeta');
+            fd.append('url', url);
+
+            fetch(API_URL, { method: 'POST', body: fd })
+            .then(res => res.json())
+            .then(data => {
+                if(data.status == 'success') {
+                    document.getElementById('inpTitle').value = data.title;
+                    document.getElementById('inpDesc').value = data.description;
+                    document.getElementById('inpIcon').value = data.icon;
+                    status.innerText = "✅ Đã lấy thông tin!";
+                    status.style.color = "#2ecc71";
+                } else {
+                    status.innerText = "⚠️ Không lấy được tự động. Hãy nhập tay.";
+                    status.style.color = "#ff6b6b";
+                    console.log(data.error); // Xem lỗi chi tiết trong Console F12
+                }
+            })
+            .catch(() => status.innerText = "⚠️ Lỗi mạng.");
+        }
+
+        // 3. Thêm Link
+        function addLink() {
+            const url = document.getElementById('inpUrl').value;
+            const title = document.getElementById('inpTitle').value;
+            const cate = document.getElementById('inpCate').value;
+            const desc = document.getElementById('inpDesc').value || "Không có mô tả";
+            let icon = document.getElementById('inpIcon').value;
+
+            if(!url || !title) return alert("Vui lòng nhập URL và Tiêu đề");
             if(!icon) icon = "https://cdn-icons-png.flaticon.com/512/1006/1006771.png";
 
-            const btn = document.querySelector('.btn-save');
+            const btn = document.querySelector('.add-box .btn-primary');
             btn.innerText = "Đang lưu..."; btn.disabled = true;
 
             const fd = new FormData();
             fd.append('action', 'addLink');
-            fd.append('title', title);
+            fd.append('mdd', userMDD); // Quan trọng
             fd.append('url', url);
+            fd.append('title', title);
             fd.append('category', cate);
             fd.append('desc', desc);
             fd.append('icon', icon);
-            fd.append('mdd', currentUserMDD);
 
-            fetch(SCRIPT_URL, { method: 'POST', body: fd })
+            fetch(API_URL, { method: 'POST', body: fd })
             .then(() => {
+                alert("Đã lưu thành công!");
                 // Reset form
-                document.getElementById('linkUrl').value = "";
-                document.getElementById('linkTitle').value = "";
-                document.getElementById('linkDesc').value = "";
-                document.getElementById('linkIcon').value = "";
-                btn.innerText = "💾 Lưu Link"; btn.disabled = false;
+                document.getElementById('inpUrl').value = "";
+                document.getElementById('inpTitle').value = "";
+                document.getElementById('status-text').innerText = "";
+                btn.innerText = "Lưu vào kho"; btn.disabled = false;
                 loadLinks();
             });
         }
 
-        // HÀM TẢI DANH SÁCH
+        // 4. Tải danh sách
         function loadLinks() {
-            fetch(SCRIPT_URL + '?action=getLinks&mdd=' + currentUserMDD)
+            fetch(API_URL + '?action=getLinks&mdd=' + userMDD)
             .then(res => res.json())
             .then(data => {
-                const list = document.getElementById('link-list');
+                const list = document.getElementById('list-container');
                 list.innerHTML = "";
-                if(data.length === 0) return list.innerHTML = "<p align='center'>Trống trơn.</p>";
+                
+                if(data.length === 0) {
+                    list.innerHTML = "<p style='text-align:center; color:#a4b0be'>Kho trống. Hãy thêm link đầu tiên!</p>";
+                    return;
+                }
 
                 data.forEach(row => {
-                    // Cấu trúc trả về: 
-                    // [0]Time, [1]Title, [2]URL, [3]Cate, [4]Status, [5]MDD, [6]Desc, [7]Icon, [8]RowIndex
-                    
+                    // row: [0]Time, [1]Title, [2]URL, [3]Cate, [4]Status, [5]MDD, [6]Desc, [7]Icon, [8]RowIndex
                     const icon = row[7] || "https://cdn-icons-png.flaticon.com/512/1006/1006771.png";
-                    const desc = row[6] || "Không có mô tả.";
-
+                    
                     list.innerHTML += `
                         <div class="link-card">
                             <img src="${icon}" class="site-icon" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1006/1006771.png'">
-                            <div class="link-info">
-                                <h3>${row[1]}</h3>
-                                <div class="desc">${desc}</div>
-                                <div style="margin-top:5px">
-                                    <span class="tag">${row[3]}</span> 
-                                    <span style="font-size:0.75rem; color:#aaa">${new Date(row[0]).toLocaleDateString()}</span>
+                            <div class="link-content">
+                                <div class="link-title" title="${row[1]}">${row[1]}</div>
+                                <div class="link-desc">${row[6]}</div>
+                                <div class="link-meta">
+                                    <span class="category-tag">${row[3]}</span>
+                                    <span>${new Date(row[0]).toLocaleDateString()}</span>
                                 </div>
                             </div>
-                            <div class="actions">
-                                <a href="${row[2]}" target="_blank" class="btn-open">Mở</a>
-                                <button class="btn-del" onclick="deleteLink(${row[8]})">Xóa</button>
+                            <div class="link-actions">
+                                <a href="${row[2]}" target="_blank" class="btn-open">Mở ↗</a>
+                                <button class="btn-del" onclick="delLink(${row[8]})">Xóa</button>
                             </div>
                         </div>
                     `;
@@ -213,15 +227,15 @@
             });
         }
 
-        function deleteLink(idx) {
-            if(confirm("Xóa nhé?")) {
+        // 5. Xóa Link
+        function delLink(rowIndex) {
+            if(confirm("Bạn có chắc chắn xóa link này?")) {
                 const fd = new FormData();
                 fd.append('action', 'deleteLink');
-                fd.append('row', idx);
-                fetch(SCRIPT_URL, { method: 'POST', body: fd }).then(() => loadLinks());
+                fd.append('row', rowIndex);
+                fetch(API_URL, { method: 'POST', body: fd }).then(() => loadLinks());
             }
         }
     </script>
-
 </body>
 </html>
