@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Link Saver 🔗</title>
+    <title>My Private Links 🔒</title>
     <style>
-        :root { --primary: #6c5ce7; --bg: #dfe6e9; --card: #fff; }
+        :root { --primary: #0984e3; --bg: #f5f6fa; --card: #fff; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 20px; display: flex; justify-content: center; }
         .container { width: 100%; max-width: 600px; }
         
@@ -16,15 +16,18 @@
         .hidden { display: none; }
         .input-group { background: var(--card); padding: 20px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         
-        input, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #b2bec3; border-radius: 6px; box-sizing: border-box; }
+        input, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #dcdde1; border-radius: 6px; box-sizing: border-box; }
         button { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
         button:hover { opacity: 0.9; }
+        
+        /* User Info Bar */
+        .user-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; font-weight: bold; color: #2d3436; }
         
         /* Link Card */
         .link-card { background: var(--card); padding: 15px; margin-bottom: 10px; border-radius: 8px; border-left: 5px solid var(--primary); display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .link-info h3 { margin: 0 0 5px 0; font-size: 1.1rem; color: #2d3436; }
         .link-meta { font-size: 0.85rem; color: #636e72; }
-        .tag { background: #ffeaa7; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; color: #d35400; margin-right: 5px; }
+        .tag { background: #dfe6e9; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; color: #2d3436; margin-right: 5px; }
         
         .actions a { text-decoration: none; background: #00b894; color: white; padding: 5px 10px; border-radius: 4px; font-size: 0.9rem; margin-right: 5px; }
         .btn-del { background: #fab1a0; color: #d63031; padding: 5px 10px; border-radius: 4px; cursor: pointer; border: none; }
@@ -34,25 +37,30 @@
 
     <div class="container">
         <div id="login-screen">
-            <h2>🔐 Kho Link Cá Nhân</h2>
+            <h2>🔐 Private Link Saver</h2>
             <input type="text" id="user" placeholder="Username">
             <input type="password" id="pass" placeholder="Password">
-            <button onclick="login()">Truy cập</button>
+            <button onclick="login()">Đăng nhập an toàn</button>
             <p id="msg" style="color:red; margin-top:10px"></p>
         </div>
 
         <div id="app" class="hidden">
+            <div class="user-bar">
+                <span id="welcome-msg">Xin chào!</span>
+                <button onclick="logout()" style="width: auto; padding: 5px 10px; background: #636e72;">Thoát</button>
+            </div>
+
             <div class="input-group">
                 <h3>Thêm Link Mới</h3>
-                <input type="text" id="linkTitle" placeholder="Tiêu đề (Vd: Nhạc Lofi chill)">
+                <input type="text" id="linkTitle" placeholder="Tiêu đề trang web">
                 <input type="url" id="linkUrl" placeholder="Dán URL vào đây (https://...)">
                 <select id="linkCategory">
                     <option value="Công việc">💼 Công việc</option>
                     <option value="Học tập">📚 Học tập</option>
                     <option value="Giải trí">🎬 Giải trí</option>
-                    <option value="Tài liệu">📂 Tài liệu</option>
+                    <option value="Khác">✨ Khác</option>
                 </select>
-                <button onclick="addLink()">💾 Lưu Link</button>
+                <button onclick="addLink()">💾 Lưu vào kho của tôi</button>
             </div>
 
             <div id="link-list">
@@ -62,13 +70,17 @@
     </div>
 
     <script>
-        // --- DÁN LINK SCRIPT MỚI VÀO ĐÂY ---
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby2JJg-pk0oM0cGtyeUBlLTXB9QPIqmSGfq3CMZ54c5Wfc9tKHIn_ZG5k1f2Itp7uLv/exec'; 
+        // --- CẤU HÌNH: DÁN LINK SCRIPT VÀO ĐÂY ---
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwmgOyiaXJOGMHX_pDIL0JHNcJJrl876pR4ltwhxxoUZaAl7P2gJtBEVxNcScn7lWbd/exec'; 
+
+        // Biến toàn cục để lưu mã định danh người dùng hiện tại
+        let currentUserMDD = "";
+        let currentUserName = "";
 
         function login() {
             const u = document.getElementById('user').value;
             const p = document.getElementById('pass').value;
-            document.getElementById('msg').innerText = "Đang kiểm tra...";
+            document.getElementById('msg').innerText = "Đang xác thực...";
 
             const fd = new FormData();
             fd.append('action', 'login');
@@ -79,11 +91,18 @@
             .then(res => res.json())
             .then(data => {
                 if(data.status == 'success') {
+                    // LƯU MDD VÀO BIẾN
+                    currentUserMDD = data.mdd;
+                    currentUserName = u;
+                    
+                    document.getElementById('welcome-msg').innerText = "👤 " + currentUserName;
                     document.getElementById('login-screen').classList.add('hidden');
                     document.getElementById('app').classList.remove('hidden');
+                    
+                    // Tải danh sách của riêng user này
                     loadLinks();
                 } else {
-                    document.getElementById('msg').innerText = "Sai tài khoản!";
+                    document.getElementById('msg').innerText = "Sai tài khoản hoặc mật khẩu!";
                 }
             });
         }
@@ -93,10 +112,10 @@
             const url = document.getElementById('linkUrl').value;
             const cate = document.getElementById('linkCategory').value;
 
-            if(!title || !url) return alert("Vui lòng nhập đủ!");
+            if(!title || !url) return alert("Vui lòng nhập đủ thông tin!");
 
             const btn = document.querySelector('button[onclick="addLink()"]');
-            btn.innerText = "Đang lưu...";
+            btn.innerText = "Đang mã hóa & lưu...";
             btn.disabled = true;
 
             const fd = new FormData();
@@ -104,30 +123,32 @@
             fd.append('title', title);
             fd.append('url', url);
             fd.append('category', cate);
+            // QUAN TRỌNG: Gửi kèm MDD để Server biết link này của ai
+            fd.append('mdd', currentUserMDD); 
 
             fetch(SCRIPT_URL, { method: 'POST', body: fd })
             .then(() => {
-                alert("Đã lưu!");
+                alert("Đã lưu thành công!");
                 document.getElementById('linkTitle').value = "";
                 document.getElementById('linkUrl').value = "";
-                btn.innerText = "💾 Lưu Link";
+                btn.innerText = "💾 Lưu vào kho của tôi";
                 btn.disabled = false;
-                loadLinks(); // Tải lại danh sách
+                loadLinks();
             });
         }
 
         function loadLinks() {
-            fetch(SCRIPT_URL + '?action=getLinks')
+            // Gửi kèm MDD lên Server để lọc dữ liệu
+            fetch(SCRIPT_URL + '?action=getLinks&mdd=' + currentUserMDD)
             .then(res => res.json())
             .then(data => {
                 const list = document.getElementById('link-list');
                 list.innerHTML = "";
-                if(data.length === 0) return list.innerHTML = "<p>Chưa có link nào.</p>";
+                
+                if(data.length === 0) return list.innerHTML = "<p style='text-align:center; color:#888'>Kho của bạn đang trống.</p>";
 
                 data.forEach(row => {
-                    // row[1]=Title, row[2]=URL, row[3]=Category, row[5]=RowIndex (do push thêm)
-                    // Lưu ý: row[5] là chỉ số dòng mình push vào ở server
-                    
+                    // row[6] là số dòng (rowIndex) đã được thêm ở server
                     list.innerHTML += `
                         <div class="link-card">
                             <div class="link-info">
@@ -139,7 +160,7 @@
                             </div>
                             <div class="actions">
                                 <a href="${row[2]}" target="_blank">Mở ↗</a>
-                                <button class="btn-del" onclick="deleteLink(${row[5]})">X</button>
+                                <button class="btn-del" onclick="deleteLink(${row[6]})">Xóa</button>
                             </div>
                         </div>
                     `;
@@ -148,7 +169,7 @@
         }
 
         function deleteLink(rowIndex) {
-            if(!confirm("Xóa link này?")) return;
+            if(!confirm("Xóa vĩnh viễn link này?")) return;
             
             const fd = new FormData();
             fd.append('action', 'deleteLink');
@@ -156,6 +177,10 @@
 
             fetch(SCRIPT_URL, { method: 'POST', body: fd })
             .then(() => loadLinks());
+        }
+
+        function logout() {
+            location.reload();
         }
     </script>
 
