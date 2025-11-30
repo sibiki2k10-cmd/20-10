@@ -79,6 +79,10 @@
         #toast { position: fixed; bottom: 30px; right: 30px; background: rgba(0,0,0,0.9); color: white; padding: 12px 25px; border-radius: 30px; transform: translateY(100px); transition: 0.3s; z-index: 2000; }
         #toast.show { transform: translateY(0); }
 
+        /* UPLOAD BTN */
+        .btn-upload { background: #eee; border: none; padding: 0 15px; border-radius: 8px; cursor: pointer; transition: 0.2s; font-size: 1.2rem; color: #555; display: flex; align-items: center; justify-content: center; }
+        .btn-upload:hover { background: #ddd; color: var(--accent); }
+
         @media (max-width: 768px) {
             .sidebar { position: fixed; left: -300px; height: 100vh; margin: 0; border-radius: 0; }
             .sidebar.open { left: 0; box-shadow: 10px 0 30px rgba(0,0,0,0.5); }
@@ -152,9 +156,13 @@
                      <label class="inp-label">Tiêu đề</label>
                      <input type="text" id="inp-title" class="inp" placeholder="Tiêu đề trang">
                 </div>
-                <div style="width: 80px;">
-                    <label class="inp-label">Icon</label>
-                    <input type="text" id="inp-icon" class="inp" placeholder="Emo/Url">
+                <div style="flex:1">
+                    <label class="inp-label">Icon (Link/Emoji)</label>
+                    <div style="display:flex; gap:5px">
+                        <input type="text" id="inp-icon" class="inp" placeholder="Dán link hoặc...">
+                        <input type="file" id="up-file" hidden onchange="app.uploadIcon()">
+                        <button class="btn-upload" onclick="document.getElementById('up-file').click()" title="Tải ảnh lên"><i class="fas fa-cloud-upload-alt"></i></button>
+                    </div>
                 </div>
             </div>
 
@@ -179,7 +187,7 @@
 
     <script>
         // --- THAY LINK API CỦA BẠN VÀO ĐÂY ---
-        const API = 'https://script.google.com/macros/s/AKfycbxkDOP8_usccivV9_dXb2yADY9nG1KTEhw4i7dbziCZZsVtOmYinGfPHrU3SmYWo-W9/exec'; 
+        const API = 'https://script.google.com/macros/s/AKfycbwBriN_3F_gvhohT9j0_ao1wgUbj1h1QI928HJs6LP8WzdDqgT4rp43jFh7I-5Q69c6/exec'; 
 
         const app = {
             links: [], folders: [], userMDD: '', isEdit: false,
@@ -212,11 +220,7 @@
                 if(this.folders.length == 0) list.innerHTML = `<p style="text-align:center; opacity:0.6; font-size:0.8rem; margin-top:10px">Chưa có thư mục.<br>Bấm + để tạo.</p>`;
                 
                 this.folders.forEach(f => {
-                    // Logic hiển thị icon: Nếu là link ảnh -> img, nếu không -> text (emoji)
-                    let iconHtml = f.icon && f.icon.startsWith('http') 
-                        ? `<img src="${f.icon}">` 
-                        : (f.icon || '📁');
-                    
+                    let iconHtml = f.icon && f.icon.startsWith('http') ? `<img src="${f.icon}">` : (f.icon || '📁');
                     list.innerHTML += `
                         <div class="menu-item" onclick="app.filter('${f.name}', this)">
                             <div style="display:flex; align-items:center; gap:10px; overflow:hidden;">
@@ -234,10 +238,8 @@
 
             createFolder: function() {
                 const name = prompt("Nhập tên thư mục:"); if(!name) return;
-                const icon = prompt("Nhập Icon (Dán Emoji hoặc Link ảnh):", "📁");
-                
+                const icon = prompt("Nhập Icon (Emoji/Link/Hoặc để trống tải ảnh sau):", "📁");
                 if(this.folders.some(f => f.name.toLowerCase() == name.toLowerCase())) return alert("Tên trùng!");
-                
                 this.folders.push({name: name, icon: icon, row: 9999}); this.renderFolders();
                 const fd = new FormData(); fd.append('action', 'createFolder'); fd.append('name', name); fd.append('icon', icon); fd.append('mdd', this.userMDD);
                 fetch(API, {method:'POST', body:fd}).then(()=> this.loadFolders());
@@ -247,9 +249,8 @@
             editFolder: function(row, oldName, oldIcon) {
                 const newName = prompt("Tên thư mục mới:", oldName); if(newName === null) return;
                 const newIcon = prompt("Icon mới (Emoji/Link):", oldIcon); if(newIcon === null) return;
-
                 const fd = new FormData(); fd.append('action', 'editFolder'); fd.append('row', row); fd.append('name', newName); fd.append('icon', newIcon);
-                fetch(API, {method:'POST', body:fd}).then(()=> { this.loadFolders(); this.loadLinks(); }); // Load link vì link có thể hiển thị tên Cate cũ
+                fetch(API, {method:'POST', body:fd}).then(()=> { this.loadFolders(); this.loadLinks(); });
                 this.toast("Đang cập nhật...");
             },
 
@@ -259,6 +260,38 @@
                 const fd = new FormData(); fd.append('action', 'deleteFolder'); fd.append('row', row);
                 fetch(API, {method:'POST', body:fd});
                 this.toast("Đã xóa thư mục");
+            },
+
+            // --- UPLOAD LOGIC ---
+            uploadIcon: function() {
+                const file = document.getElementById('up-file').files[0];
+                if(!file) return;
+                
+                const reader = new FileReader();
+                const btn = document.querySelector('.btn-upload');
+                const orgHtml = btn.innerHTML;
+                btn.innerHTML = "<i class='fas fa-spinner fa-spin'></i>"; btn.disabled = true;
+
+                reader.onload = function(e) {
+                    const base64 = e.target.result;
+                    const fd = new FormData();
+                    fd.append('action', 'uploadImage');
+                    fd.append('data', base64);
+                    
+                    fetch(API, {method: 'POST', body: fd})
+                    .then(r => r.json())
+                    .then(res => {
+                        btn.innerHTML = orgHtml; btn.disabled = false;
+                        if(res.status == 'success') {
+                            document.getElementById('inp-icon').value = res.url;
+                            app.toast("Upload thành công!");
+                        } else {
+                            alert("Lỗi upload: " + res.error);
+                        }
+                    })
+                    .catch(() => { btn.innerHTML = orgHtml; btn.disabled = false; alert("Lỗi kết nối"); });
+                };
+                reader.readAsDataURL(file);
             },
 
             // --- LINK LOGIC ---
@@ -272,16 +305,11 @@
             renderLinks: function(list) {
                 const grid = document.getElementById('grid'); grid.innerHTML = "";
                 if(list.length==0) { grid.innerHTML = '<p style="text-align:center; width:100%; opacity:0.7">Chưa có link nào.</p>'; return;}
-                
                 list.forEach(i => {
                     const iconVal = i[7];
-                    // Kiểm tra icon là Ảnh hay Emoji để render đúng
-                    let iconHtml = "";
-                    if (iconVal && iconVal.startsWith('http')) {
-                        iconHtml = `<img src="${iconVal}" class="card-icon" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1006/1006771.png'">`;
-                    } else {
-                        iconHtml = `<div class="card-emoji">${iconVal || '🔗'}</div>`;
-                    }
+                    let iconHtml = (iconVal && iconVal.startsWith('http')) 
+                        ? `<img src="${iconVal}" class="card-icon" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1006/1006771.png'">`
+                        : `<div class="card-emoji">${iconVal || '🔗'}</div>`;
 
                     grid.innerHTML += `
                         <div class="card glass">
@@ -318,10 +346,11 @@
                 this.renderLinks(this.links.filter(x => String(x[1]).toLowerCase().includes(k) || String(x[2]).toLowerCase().includes(k)));
             },
 
-            // --- MODAL & ACTIONS ---
             openModal: function() {
                 this.isEdit = false; document.getElementById('modal-title').innerText = "Thêm Link Mới";
-                ['inp-url','inp-title','inp-desc','inp-icon'].forEach(id=>document.getElementById(id).value="");
+                ['inp-url','inp-title','inp-desc','inp-icon','up-file'].forEach(id=> { 
+                    const el = document.getElementById(id); if(el) el.value=""; 
+                });
                 this.populateCate(); document.getElementById('modal-overlay').classList.add('active');
             },
 
@@ -332,8 +361,7 @@
                 document.getElementById('inp-title').value = item[1];
                 document.getElementById('inp-url').value = item[2];
                 document.getElementById('inp-desc').value = item[6];
-                document.getElementById('inp-icon').value = item[7]; // Load icon cũ
-                
+                document.getElementById('inp-icon').value = item[7];
                 this.populateCate();
                 document.getElementById('inp-cate').value = item[3];
                 document.getElementById('modal-overlay').classList.add('active');
@@ -369,7 +397,7 @@
                 fd.append('mdd', this.userMDD); fd.append('url', u); fd.append('title', t);
                 fd.append('category', document.getElementById('inp-cate').value);
                 fd.append('desc', document.getElementById('inp-desc').value);
-                fd.append('icon', document.getElementById('inp-icon').value); // Lưu icon custom
+                fd.append('icon', document.getElementById('inp-icon').value);
                 
                 if(this.isEdit) { fd.append('action', 'editLink'); fd.append('row', document.getElementById('inp-row').value); }
                 else fd.append('action', 'addLink');
